@@ -1,0 +1,12 @@
+{
+  "name": "FINVELY",
+  "short_name": "FINVELY",
+  "description": "Controla tus gastos en dolares y alcanza tus metas de ahorro.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f3ff",
+  "theme_color": "#7c3aed",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
