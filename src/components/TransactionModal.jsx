@@ -4,6 +4,7 @@ import { useStore } from '../store/useStore'
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '../lib/categories'
 import { CURRENCIES, getCurrency } from '../lib/currencies'
 import { toUSD } from '../lib/exchange'
+import { PrivacyValue } from './PrivacyMode'
 import { usd } from '../lib/format'
 
 const todayInput = () => new Date().toISOString().slice(0, 10)
@@ -134,7 +135,7 @@ export default function TransactionModal({ open, onClose }) {
               <span>Se guarda en USD</span>
             ) : rate ? (
               <span>
-                = <strong className="text-brand-700">{usd(amountUSD)}</strong> &middot; 1 USD ={' '}
+                = <strong className="text-brand-700"><PrivacyValue value={usd(amountUSD)} /></strong> &middot; 1 USD ={' '}
                 {rate.toLocaleString('es', { maximumFractionDigits: 2 })} {currency}
               </span>
             ) : (
@@ -208,7 +209,7 @@ export default function TransactionModal({ open, onClose }) {
         </div>
 
         <button onClick={save} disabled={!canSave} className="btn-primary w-full py-3.5 text-lg">
-          Guardar {parseFloat(amount) > 0 && `(${usd(amountUSD)})`}
+          Guardar {parseFloat(amount) > 0 && <>(<PrivacyValue value={usd(amountUSD)} />)</>}
         </button>
         <div className="h-4" />
       </div>

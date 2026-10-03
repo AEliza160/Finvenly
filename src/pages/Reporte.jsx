@@ -5,6 +5,7 @@ import { usd, monthLabel, currentMonthKey, dayLabel } from '../lib/format'
 import { availableMonths, monthlyStats, spendByCategory, inMonth } from '../lib/finance'
 import { getCategory } from '../lib/categories'
 import DonutChart from '../components/DonutChart'
+import { PrivacyValue } from '../components/PrivacyMode'
 
 export default function Reporte() {
   const transactions = useStore((s) => s.transactions)
@@ -72,7 +73,7 @@ export default function Reporte() {
           <div className="space-y-3 rounded-3xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-900 p-5 text-white shadow-soft">
             <p className="text-sm text-brand-100">{monthLabel(selected)}</p>
             <p className="text-lg font-semibold">
-              {name || 'Este mes'}, moviste <strong>{usd(stats.income + stats.expense)}</strong> en
+              {name || 'Este mes'}, moviste <strong><PrivacyValue value={usd(stats.income + stats.expense)} /></strong> en
               total.
             </p>
 
@@ -93,7 +94,7 @@ export default function Reporte() {
               {stats.topCategory ? (
                 <>
                   <p className="text-lg font-bold">{stats.topCategory.label}</p>
-                  <p className="text-sm text-ink/50">{usd(stats.topCategory.value)}</p>
+                  <p className="text-sm text-ink/50"><PrivacyValue value={usd(stats.topCategory.value)} /></p>
                 </>
               ) : (
                 <p className="text-sm text-ink/50">Sin gastos</p>
@@ -103,7 +104,7 @@ export default function Reporte() {
               {stats.topDay ? (
                 <>
                   <p className="text-lg font-bold">{dayLabel(stats.topDay.date)}</p>
-                  <p className="text-sm text-ink/50">{usd(stats.topDay.value)}</p>
+                  <p className="text-sm text-ink/50"><PrivacyValue value={usd(stats.topDay.value)} /></p>
                 </>
               ) : (
                 <p className="text-sm text-ink/50">-</p>
@@ -111,10 +112,10 @@ export default function Reporte() {
             </BigCard>
             <BigCard emoji="🧾" title="Movimientos">
               <p className="text-lg font-bold">{stats.count}</p>
-              <p className="text-sm text-ink/50">~{usd(stats.avgExpense)} por gasto</p>
+              <p className="text-sm text-ink/50">~<PrivacyValue value={usd(stats.avgExpense)} /> por gasto</p>
             </BigCard>
             <BigCard emoji="🔁" title="Suscripciones">
-              <p className="text-lg font-bold">{usd(stats.recurringTotal)}</p>
+              <p className="text-lg font-bold"><PrivacyValue value={usd(stats.recurringTotal)} /></p>
               <p className="text-sm text-ink/50">{stats.recurringCount} recurrentes</p>
             </BigCard>
           </div>
@@ -130,7 +131,7 @@ export default function Reporte() {
                       <span className="h-2.5 w-2.5 rounded-full" style={{ background: c.color }} />
                       {c.label}
                     </span>
-                    <span className="font-semibold">{usd(c.value)}</span>
+                    <span className="font-semibold"><PrivacyValue value={usd(c.value)} /></span>
                   </li>
                 ))}
               </ul>
@@ -169,7 +170,7 @@ function Stat({ label, value, highlight }) {
   return (
     <div className={`rounded-2xl p-3 ${highlight ? 'bg-accent/30' : 'bg-white/10'}`}>
       <p className="text-xs text-brand-100">{label}</p>
-      <p className="text-lg font-extrabold">{value}</p>
+      <p className="text-lg font-extrabold">{label === 'Tasa de ahorro' ? value : <PrivacyValue value={value} />}</p>
     </div>
   )
 }

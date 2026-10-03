@@ -2,6 +2,7 @@ import { Repeat, Trash2 } from 'lucide-react'
 import { getCategory } from '../lib/categories'
 import { usd, local, dayLabel } from '../lib/format'
 import { useStore } from '../store/useStore'
+import { PrivacyValue } from './PrivacyMode'
 
 export default function TransactionRow({ tx }) {
   const deleteTransaction = useStore((s) => s.deleteTransaction)
@@ -24,14 +25,15 @@ export default function TransactionRow({ tx }) {
         </div>
         <p className="text-xs text-ink/40">
           {cat.label} &middot; {dayLabel(tx.date)}
-          {tx.currencyOriginal !== 'USD' &&
-            ` · ${local(tx.amountOriginal, tx.currencyOriginal)}`}
+          {tx.currencyOriginal !== 'USD' && (
+            <> &middot; <PrivacyValue value={local(tx.amountOriginal, tx.currencyOriginal)} /></>
+          )}
         </p>
       </div>
       <div className="text-right">
         <p className={`font-bold ${isIncome ? 'text-emerald-500' : 'text-ink'}`}>
           {isIncome ? '+' : '-'}
-          {usd(tx.amountUSD)}
+          <PrivacyValue value={usd(tx.amountUSD)} />
         </p>
         <button
           onClick={() => deleteTransaction(tx.id)}

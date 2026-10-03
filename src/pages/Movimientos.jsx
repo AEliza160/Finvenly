@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../store/useStore'
 import { usd, monthKey, monthLabel } from '../lib/format'
 import TransactionRow from '../components/TransactionRow'
+import { PrivacyValue } from '../components/PrivacyMode'
 
 const FILTERS = [
   { v: 'all', l: 'Todo' },
@@ -64,8 +65,8 @@ export default function Movimientos() {
             <div className="mb-2 flex items-center justify-between px-1">
               <h2 className="text-sm font-bold text-ink/60">{monthLabel(key)}</h2>
               <span className="text-xs text-ink/40">
-                <span className="text-emerald-500">+{usd(income)}</span>{' '}
-                <span className="text-rose-400">-{usd(expense)}</span>
+                <span className="text-emerald-500">+<PrivacyValue value={usd(income)} /></span>{' '}
+                <span className="text-rose-400">-<PrivacyValue value={usd(expense)} /></span>
               </span>
             </div>
             <div className="space-y-2">

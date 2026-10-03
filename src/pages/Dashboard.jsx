@@ -5,6 +5,7 @@ import { usd, currentMonthKey, monthLabel } from '../lib/format'
 import { availableBalance, inMonth, spendByCategory, sumUSD } from '../lib/finance'
 import DonutChart from '../components/DonutChart'
 import TransactionRow from '../components/TransactionRow'
+import { PrivacyValue } from '../components/PrivacyMode'
 
 export default function Dashboard({ onAdd }) {
   const name = useStore((s) => s.profile.name)
@@ -33,24 +34,24 @@ export default function Dashboard({ onAdd }) {
       {/* Balance */}
       <div className="rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-soft">
         <p className="text-sm text-brand-100">Balance disponible</p>
-        <p className="mt-1 text-4xl font-extrabold tracking-tight">{usd(balance)}</p>
+        <p className="mt-1 text-4xl font-extrabold tracking-tight"><PrivacyValue value={usd(balance)} /></p>
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-white/10 p-3">
             <p className="flex items-center gap-1 text-xs text-brand-100">
               <TrendingUp size={13} /> Ingresos
             </p>
-            <p className="text-lg font-bold">{usd(monthIncome)}</p>
+            <p className="text-lg font-bold"><PrivacyValue value={usd(monthIncome)} /></p>
           </div>
           <div className="rounded-2xl bg-white/10 p-3">
             <p className="flex items-center gap-1 text-xs text-brand-100">
               <TrendingDown size={13} /> Gastos
             </p>
-            <p className="text-lg font-bold">{usd(monthExpense)}</p>
+            <p className="text-lg font-bold"><PrivacyValue value={usd(monthExpense)} /></p>
           </div>
         </div>
         {savedInGoals > 0 && (
           <p className="mt-3 text-xs text-brand-100">
-            💰 {usd(savedInGoals)} guardados en tus metas
+            💰 <PrivacyValue value={usd(savedInGoals)} /> guardados en tus metas
           </p>
         )}
       </div>
@@ -80,7 +81,7 @@ export default function Dashboard({ onAdd }) {
                     {c.label}
                   </span>
                   <span className="font-semibold">
-                    {usd(c.value)}
+                    <PrivacyValue value={usd(c.value)} />
                     <span className="ml-1 text-ink/40">
                       {Math.round((c.value / monthExpense) * 100)}%
                     </span>

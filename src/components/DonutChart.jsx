@@ -1,4 +1,5 @@
 import { usd } from '../lib/format'
+import { PrivacyValue } from './PrivacyMode'
 
 /**
  * Grafico de anillos simplificado.
@@ -56,7 +57,7 @@ export default function DonutChart({ data = [], total, centerLabel = 'Gasto del 
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-xs text-ink/40">{centerLabel}</span>
-          <span className="text-2xl font-extrabold text-ink">{usd(sum)}</span>
+          <span className="text-2xl font-extrabold text-ink"><PrivacyValue value={usd(sum)} /></span>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Plus, X, Target, Trash2, PiggyBank } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { usd, currentMonthKey } from '../lib/format'
 import { inMonth, sumUSD } from '../lib/finance'
+import { PrivacyValue } from '../components/PrivacyMode'
 
 const EMOJIS = ['🎯', '✈️', '🎧', '💻', '👟', '🎸', '📱', '🏝️', '🎓', '💍', '📷', '🚗']
 
@@ -28,7 +29,7 @@ export default function Metas() {
       {goals.length > 0 && (
         <div className="card p-4">
           <p className="text-sm text-ink/50">Ahorrado en bolsillos</p>
-          <p className="text-2xl font-extrabold">{usd(totalSaved)}</p>
+          <p className="text-2xl font-extrabold"><PrivacyValue value={usd(totalSaved)} /></p>
           {totalTarget > 0 && (
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-100">
               <div
@@ -101,7 +102,7 @@ function GoalCard({ goal, monthIncome }) {
             </button>
           </div>
           <p className="text-sm text-ink/50">
-            {usd(goal.currentUSD)} <span className="text-ink/30">de</span> {usd(goal.targetUSD)}
+            <PrivacyValue value={usd(goal.currentUSD)} /> <span className="text-ink/30">de</span> <PrivacyValue value={usd(goal.targetUSD)} />
           </p>
         </div>
       </div>
@@ -115,14 +116,14 @@ function GoalCard({ goal, monthIncome }) {
 
       <div className="mt-2 flex items-center justify-between text-xs text-ink/50">
         <span>{Math.round(pct)}% completado</span>
-        <span>{done ? '¡Meta lograda! 🎉' : `Te faltan ${usd(remaining)}`}</span>
+        <span>{done ? '¡Meta lograda! 🎉' : <>Te faltan <PrivacyValue value={usd(remaining)} /></>}</span>
       </div>
 
       {goal.allocationPct > 0 && !done && (
         <p className="mt-2 rounded-xl bg-brand-50 px-3 py-2 text-xs text-brand-700">
           <PiggyBank size={13} className="mr-1 inline" />
           Aporte sugerido: <strong>{goal.allocationPct}%</strong> de tu ingreso mensual ={' '}
-          <strong>{usd(suggested)}</strong>/mes
+          <strong><PrivacyValue value={usd(suggested)} /></strong>/mes
         </p>
       )}
 
@@ -169,7 +170,7 @@ function GoalCard({ goal, monthIncome }) {
           onClick={() => contributeToGoal(goal.id, suggested)}
           className="mt-2 w-full text-center text-xs font-medium text-brand-600"
         >
-          Aportar el sugerido ({usd(suggested)})
+          Aportar el sugerido (<PrivacyValue value={usd(suggested)} />)
         </button>
       )}
     </div>
