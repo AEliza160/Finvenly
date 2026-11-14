@@ -2,16 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { uid } from '../lib/format'
 
-/**
- * Estado global de FINVELY, persistido en localStorage.
- *
- * transaction: {
- *   id, type: 'income' | 'expense',
- *   amountOriginal, currencyOriginal, rateApplied, amountUSD,
- *   category, note, recurring, date (ISO)
- * }
- * goal: { id, name, targetUSD, currentUSD, allocationPct, deadline, emoji, createdAt }
- */
 export const useStore = create(
   persist(
     (set, get) => ({
@@ -22,7 +12,7 @@ export const useStore = create(
       },
       transactions: [],
       goals: [],
-      rates: null, // { rates, fetchedAt, source }
+      rates: null,
 
       // --- Perfil ---
       setProfile: (patch) =>
@@ -40,23 +30,54 @@ export const useStore = create(
           goals: [],
         }),
 
-      // --- Tipo de cambio ---
       setRates: (rates) => set({ rates }),
 
+      // --- Sincronización con Google Sheets / API ---
+      fetchData: async () => {
+        try {
+          const [resTx, resGoals] = await Promise.all([
+            fetch('/api/transactions'),
+            fetch('/api/goals')
+          ])
+          if (resTx.ok && resGoals.ok) {
+            const transactions = await resTx.json()
+            const goals = await resGoals.json()
+            set({ 
+              transactions: Array.isArray(transactions) ? transactions : [], 
+              goals: Array.isArray(goals) ? goals : [] 
+            })
+          }
+        } catch (error) {
+          console.error("Error al sincronizar con Google Sheets:", error)
+        }
+      },
+
       // --- Transacciones ---
-      addTransaction: (tx) =>
+      addTransaction: async (tx) => {
+        const nuevaTx = {
+          id: uid(),
+          recurring: false,
+          note: '',
+          date: new Date().toISOString(),
+          ...tx,
+        }
+
+        // Actualización optimista en la interfaz
         set((s) => ({
-          transactions: [
-            {
-              id: uid(),
-              recurring: false,
-              note: '',
-              date: new Date().toISOString(),
-              ...tx,
-            },
-            ...s.transactions,
-          ],
-        })),
+          transactions: [nuevaTx, ...s.transactions],
+        }))
+
+        // Enviar al backend (Google Sheets)
+        try {
+          await fetch('/api/transactions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaTx),
+          })
+        } catch (error) {
+          console.error("Error al guardar la transacción en el servidor:", error)
+        }
+      },
 
       deleteTransaction: (id) =>
         set((s) => ({
@@ -64,21 +85,31 @@ export const useStore = create(
         })),
 
       // --- Metas / Bolsillos ---
-      addGoal: (goal) =>
+      addGoal: async (goal) => {
+        const nuevaMeta = {
+          id: uid(),
+          currentUSD: 0,
+          allocationPct: 0,
+          deadline: '',
+          emoji: '\u{1F3AF}',
+          createdAt: new Date().toISOString(),
+          ...goal,
+        }
+
         set((s) => ({
-          goals: [
-            ...s.goals,
-            {
-              id: uid(),
-              currentUSD: 0,
-              allocationPct: 0,
-              deadline: '',
-              emoji: '\u{1F3AF}',
-              createdAt: new Date().toISOString(),
-              ...goal,
-            },
-          ],
-        })),
+          goals: [...s.goals, nuevaMeta],
+        }))
+
+        try {
+          await fetch('/api/goals', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevaMeta),
+          })
+        } catch (error) {
+          console.error("Error al guardar la meta en el servidor:", error)
+        }
+      },
 
       updateGoal: (id, patch) =>
         set((s) => ({
@@ -88,33 +119,27 @@ export const useStore = create(
       deleteGoal: (id) =>
         set((s) => ({ goals: s.goals.filter((g) => g.id !== id) })),
 
-      // Aporta a un bolsillo: mueve dinero del disponible a la meta
-      // y deja registro como transaccion de ahorro.
       contributeToGoal: (id, amountUSD) => {
         const amt = Number(amountUSD) || 0
         if (amt <= 0) return
         const goal = get().goals.find((g) => g.id === id)
         if (!goal) return
+        
+        get().addTransaction({
+          type: 'expense',
+          amountOriginal: amt,
+          currencyOriginal: 'USD',
+          rateApplied: 1,
+          amountUSD: amt,
+          category: 'ahorro',
+          note: `Aporte a: ${goal.name}`,
+          goalId: id,
+        })
+
         set((s) => ({
           goals: s.goals.map((g) =>
             g.id === id ? { ...g, currentUSD: Math.max(0, g.currentUSD + amt) } : g,
           ),
-          transactions: [
-            {
-              id: uid(),
-              type: 'expense',
-              amountOriginal: amt,
-              currencyOriginal: 'USD',
-              rateApplied: 1,
-              amountUSD: amt,
-              category: 'ahorro',
-              note: `Aporte a: ${goal.name}`,
-              recurring: false,
-              goalId: id,
-              date: new Date().toISOString(),
-            },
-            ...s.transactions,
-          ],
         }))
       },
     }),

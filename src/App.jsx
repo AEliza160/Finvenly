@@ -15,16 +15,18 @@ import { PrivacyProvider } from './components/PrivacyMode'
 export default function App() {
   const onboarded = useStore((s) => s.profile.onboarded)
   const setRates = useStore((s) => s.setRates)
+  const fetchData = useStore((s) => s.fetchData)
   const [modalOpen, setModalOpen] = useState(false)
   const [privacyHidden, setPrivacyHidden] = useState(false)
 
   useEffect(() => {
     let active = true
     getRates().then((r) => active && setRates(r))
+    fetchData() // Sincroniza con Google Sheets al iniciar la aplicación
     return () => {
       active = false
     }
-  }, [setRates])
+  }, [setRates, fetchData])
 
   if (!onboarded) return <Onboarding />
 

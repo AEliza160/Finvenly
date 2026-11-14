@@ -1,0 +1,4 @@
+id,type,amountOriginal,currencyOriginal,rateApplied,amountUSD,category,note,recurring,goalId,date
+tx_8x92a,expense,8500,ARS,0.0011,9.35,comida,Cena familiar,false,,2026-10-17T14:20:00Z
+tx_2p11b,income,150,USD,1,150,salario,Freelance,false,,2026-10-17T14:22:00Z
+tx_9o44z,expense,50,USD,1,50,ahorro,Aporte a: Fondo,false,meta_f329,2026-10-17T14:25:00Z
